@@ -1,0 +1,1747 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ExamPro - MCQ Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        /* Modern Color Palette */
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7f1 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 15px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Mobile-first layout */
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Header and Navigation */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+
+        .logo-icon {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .logout-btn {
+            background: var(--light);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-size: 1.1rem;
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Main Content Styling */
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .main-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            padding: 25px 20px 15px;
+            text-align: center;
+        }
+
+        .section-header h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .section-header p {
+            color: var(--gray);
+            font-size: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Card Grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Card Styling */
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-icon::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            opacity: 0.15;
+            z-index: -1;
+        }
+
+        .developer .card-icon {
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+
+        .developer .card-icon::after {
+            background: var(--primary);
+        }
+
+        .student .card-icon {
+            background: rgba(247, 37, 133, 0.1);
+            color: var(--accent);
+        }
+
+        .student .card-icon::after {
+            background: var(--accent);
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: var(--dark);
+        }
+
+        .card p {
+            color: var(--gray);
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+            flex-grow: 1;
+        }
+
+        /* Button Styling */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            gap: 8px;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #e11570;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(67, 97, 238, 0.1);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc3545;
+            transform: translateY(-2px);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        /* Hidden Utility Class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Footer */
+        .app-footer {
+            text-align: center;
+            padding: 25px 0;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (min-width: 576px) {
+            .container {
+                max-width: 540px;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 720px;
+            }
+            
+            .section-header h1 {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .container {
+                max-width: 960px;
+            }
+        }
+
+        /* Animation for page transitions */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Test taking section */
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: white;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .test-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .test-timer {
+            background: rgba(239, 71, 111, 0.1);
+            color: var(--danger);
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .question-container {
+            padding: 20px;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            line-height: 1.7;
+            font-weight: 500;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 17px 20px;
+            background: white;
+            border: 2px solid var(--light-gray);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .option:hover {
+            border-color: var(--primary);
+        }
+
+        .option.selected {
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .option input {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .option label {
+            cursor: pointer;
+            flex-grow: 1;
+        }
+
+        .test-controls {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid var(--light-gray);
+            position: sticky;
+            bottom: 0;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            padding: 0 20px 20px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--light-gray);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--success);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        /* Results section */
+        .result-card {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .result-score {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .result-text {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        /* Floating action button */
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
+            z-index: 100;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .fab:hover {
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="app-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <span>ExamPro</span>
+            </div>
+            <button id="logoutBtn" class="logout-btn hidden">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+
+        <!-- Toast notification -->
+        <div id="toast" class="toast"></div>
+
+        <!-- Landing Page -->
+        <div id="landingPage" class="page">
+            <div class="main-content">
+                <div class="section-header">
+                    <h1>MCQ Test Platform</h1>
+                    <p>A modern platform for creating and taking tests</p>
+                </div>
+                
+                <div class="card-grid">
+                    <div class="card developer">
+                        <div class="card-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h2>Developer Portal</h2>
+                        <p>Create and manage MCQ tests, view student results and analytics to improve learning outcomes.</p>
+                        <button class="btn btn-primary" id="developerPortalBtn">
+                            <i class="fas fa-arrow-right"></i> Access Developer Portal
+                        </button>
+                    </div>
+                    
+                    <div class="card student">
+                        <div class="card-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <h2>Student Portal</h2>
+                        <p>Take tests, track your progress, and review results to enhance your learning experience.</p>
+                        <button class="btn btn-secondary" id="studentPortalBtn">
+                            <i class="fas fa-arrow-right"></i> Access Student Portal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authentication Section -->
+        <div id="authSection" class="page hidden">
+            <div class="main-content">
+                <div class="section-header">
+                    <h1>Welcome Back</h1>
+                    <p id="authMessage">Sign in to continue to your account</p>
+                </div>
+                
+                <div style="padding: 20px;">
+                    <div id="studentAuth" class="hidden">
+                        <div class="form-group">
+                            <label for="studentEmail">Email Address</label>
+                            <input type="email" id="studentEmail" class="form-control" placeholder="student@example.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="studentPassword">Password</label>
+                            <input type="password" id="studentPassword" class="form-control" placeholder="Enter your password">
+                        </div>
+                        
+                        <div class="form-group">
+                            <button id="studentLoginBtn" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </button>
+                            <button id="studentSignupBtn" class="btn btn-outline">
+                                <i class="fas fa-user-plus"></i> Sign Up
+                            </button>
+                        </div>
+                        
+                        <div style="text-align: center; margin: 20px 0; position: relative;">
+                            <div style="height: 1px; background: var(--light-gray);"></div>
+                            <span style="background: white; padding: 0 10px; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); color: var(--gray);">or</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button id="studentGoogleLoginBtn" class="btn btn-outline">
+                                <i class="fab fa-google"></i> Login with Google
+                            </button>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 25px;">
+                            <button class="btn btn-outline" id="backFromStudentAuth">
+                                <i class="fas fa-arrow-left"></i> Back to Portals
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="developerAuth" class="hidden">
+                        <div class="form-group">
+                            <label for="developerEmail">Email Address</label>
+                            <input type="email" id="developerEmail" class="form-control" placeholder="developer@example.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="developerPassword">Password</label>
+                            <input type="password" id="developerPassword" class="form-control" placeholder="Enter your password">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="developerCode">Developer Code</label>
+                            <input type="text" id="developerCode" class="form-control" placeholder="Enter your access code (MANDURI for first time)">
+                        </div>
+                        
+                        <div class="form-group">
+                            <button id="developerLoginBtn" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </button>
+                            <button id="developerSignupBtn" class="btn btn-outline">
+                                <i class="fas fa-user-plus"></i> Sign Up
+                            </button>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 25px;">
+                            <button class="btn btn-outline" id="backFromDeveloperAuth">
+                                <i class="fas fa-arrow-left"></i> Back to Portals
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Dashboard -->
+        <div id="studentDashboard" class="page hidden">
+            <div class="main-content">
+                <div class="section-header">
+                    <h1>Student Dashboard</h1>
+                    <p>Manage your profile, take tests, and review your results.</p>
+                </div>
+
+                <div style="padding: 20px;">
+                    <div id="studentProfileSection">
+                        <h2>Your Profile</h2>
+                        <p>Profile Status: <span id="profileStatus" style="font-weight: 600;">Incomplete</span></p>
+                        <div class="form-group">
+                            <label for="studentName">Name</label>
+                            <input type="text" id="studentName" class="form-control" placeholder="Your Full Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="studentClass">Class</label>
+                            <input type="text" id="studentClass" class="form-control" placeholder="e.g., 10th Grade, FSc Part 1">
+                        </div>
+                        <div class="form-group">
+                            <label for="studentDOB">Date of Birth</label>
+                            <input type="date" id="studentDOB" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="studentProvince">Province</label>
+                            <input type="text" id="studentProvince" class="form-control" placeholder="e.g., Punjab, Sindh">
+                        </div>
+                        <div class="form-group">
+                            <button id="saveProfileBtn" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Profile
+                            </button>
+                            <button id="viewProfileBtn" class="btn btn-outline">
+                                <i class="fas fa-eye"></i> View My Profile
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid var(--light-gray); margin: 30px 0;">
+
+                    <div id="testLibrarySection">
+                        <h2>Test Library</h2>
+                        <p>Available Tests:</p>
+                        <div id="testList" class="card-grid">
+                            <!-- Tests will be loaded here dynamically -->
+                            <div class="card">
+                                <h3>Loading Tests...</h3>
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="testTakingSection" class="hidden">
+                        <div class="test-header">
+                            <span class="test-title">Test: <span id="currentTestTitle"></span></span>
+                            <span class="test-timer">Time: <span id="testTimer">00:00</span></span>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div id="testProgressBar" class="progress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div class="question-container">
+                            <div id="mcqContainer">
+                                <!-- MCQ will be loaded here dynamically -->
+                                <p class="question-text">Loading question...</p>
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                        <div class="test-controls">
+                            <button id="prevMcqBtn" class="btn btn-outline hidden">
+                                <i class="fas fa-arrow-left"></i> Previous
+                            </button>
+                            <button id="nextMcqBtn" class="btn btn-primary">
+                                Next <i class="fas fa-arrow-right"></i>
+                            </button>
+                            <button id="submitTestBtn" class="btn btn-success hidden">
+                                <i class="fas fa-check-circle"></i> Submit Test
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="studentResultsSection" class="hidden">
+                        <h2>My Results</h2>
+                        <div class="result-card">
+                            <p class="result-text">Your Score:</p>
+                            <p class="result-score"><span id="studentScore">--/--</span></p>
+                            <p>Past Test Results:</p>
+                            <ul id="studentPastResultsList" style="list-style: none; padding: 0;">
+                                <!-- Past results would be loaded here -->
+                                <li>No past results to display.</li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-outline" id="backToStudentDashboardHome">
+                            <i class="fas fa-home"></i> Back to Dashboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Developer Dashboard -->
+        <div id="developerDashboard" class="page hidden">
+            <div class="main-content">
+                <div class="section-header">
+                    <h1>Developer Dashboard</h1>
+                    <p>Manage tests and monitor student performance.</p>
+                </div>
+
+                <div style="padding: 20px;">
+                    <div class="card-grid">
+                        <div class="card">
+                            <div class="card-icon" style="background: rgba(6, 214, 160, 0.1); color: var(--success);">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                            <h2>Create New Test</h2>
+                            <p>Design and publish new multiple-choice question tests for students.</p>
+                            <button class="btn btn-success" id="createTestBtn">
+                                <i class="fas fa-plus"></i> Create Test
+                            </button>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon" style="background: rgba(255, 209, 102, 0.1); color: var(--warning);">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h2>View Students</h2>
+                            <p>Access student profiles and review their test results and progress.</p>
+                            <button class="btn btn-warning" id="viewStudentsBtn">
+                                <i class="fas fa-eye"></i> View Students
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="createTestSection" class="hidden" style="margin-top: 30px;">
+                        <h2>Create New MCQs Test</h2>
+                        <div class="form-group">
+                            <label for="testTitle">Test Title</label>
+                            <input type="text" id="testTitle" class="form-control" placeholder="e.g., Biology Fundamentals">
+                        </div>
+                        <div class="form-group">
+                            <label for="customTime">Time per MCQ (minutes, default 1)</label>
+                            <input type="number" id="customTime" class="form-control" value="1" min="0.5" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="mcqInput">Paste MCQs here (STATEMENT: OPTION A: OPTION B: OPTION C: OPTION D: CORRECT OPTION:)</label>
+                            <textarea id="mcqInput" class="form-control" rows="15" placeholder="STATEMENT: What is... $$a^2+b^2=c^2$$
+OPTION A: ...
+OPTION B: ...
+OPTION C: ...
+OPTION D: ...
+CORRECT OPTION: A
+
+STATEMENT: Another question...
+OPTION A: ...
+..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button id="generateTestBtn" class="btn btn-primary">
+                                <i class="fas fa-cogs"></i> Generate & Save Test
+                            </button>
+                        </div>
+                        <p style="text-align: center; color: var(--gray);">Generated Test ID: <span id="generatedTestId" style="font-weight: 600;">N/A</span></p>
+                        <div style="text-align: center; margin-top: 25px;">
+                            <button class="btn btn-outline" id="backToDeveloperDashboardHome">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="viewStudentsSection" class="hidden" style="margin-top: 30px;">
+                        <h2>All Students & Results</h2>
+                        <div style="overflow-x: auto; margin-bottom: 20px;">
+                            <table class="table" style="min-width: 600px;">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Class</th>
+                                        <th>Email</th>
+                                        <th>Province</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentsTableBody">
+                                    <tr><td colspan="5" style="text-align: center;">Loading students...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="studentDetailsView" class="hidden" style="margin-top: 30px;">
+                            <h3>Student: <span id="currentStudentName"></span>'s Results</h3>
+                            <ul id="specificStudentResultsList" style="list-style: none; padding: 0;">
+                                <li>No results found for this student.</li>
+                            </ul>
+                            <div style="text-align: center; margin-top: 25px;">
+                                <button class="btn btn-outline" id="backToStudentListBtn">
+                                    <i class="fas fa-arrow-left"></i> Back to Students
+                                </button>
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 25px;">
+                            <button class="btn btn-outline" id="backToDeveloperDashboardHome2">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="app-footer">
+            &copy; 2024 ExamPro. All rights reserved.
+        </div>
+    </div>
+
+    <!-- Include MathJax for LaTeX rendering (requires internet connection or local setup) -->
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+
+    <!-- Firebase SDKs and Initialization -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        // getAnalytics is omitted as it's not directly used in the app's core logic for this request.
+
+        // Your web app's Firebase configuration (using your provided values)
+        const firebaseConfig = {
+            apiKey: "AIzaSyB1xByKoaNfo-ySmzHAjnxfh7_qYAZ6K48",
+            authDomain: "test-app-72070.firebaseapp.com",
+            projectId: "test-app-72070",
+            storageBucket: "test-app-72070.firebasestorage.app",
+            messagingSenderId: "1075807402991",
+            appId: "1:1075807402991:web:2e1481157169f6ead0941a",
+            measurementId: "G-YHEQKPSJZ2" // Optional, but included as you provided it
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- Utility function for Toast Notifications ---
+        function showToast(message, duration = 3000) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+
+        // --- Main Application Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get references to main sections and UI elements
+            const landingPage = document.getElementById('landingPage');
+            const authSection = document.getElementById('authSection');
+            const studentAuth = document.getElementById('studentAuth');
+            const developerAuth = document.getElementById('developerAuth');
+            const studentDashboard = document.getElementById('studentDashboard');
+            const developerDashboard = document.getElementById('developerDashboard');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            // Portal buttons
+            const developerPortalBtn = document.getElementById('developerPortalBtn');
+            const studentPortalBtn = document.getElementById('studentPortalBtn');
+
+            // Back buttons for auth sections
+            const backFromStudentAuth = document.getElementById('backFromStudentAuth');
+            const backFromDeveloperAuth = document.getElementById('backFromDeveloperAuth');
+
+            // Authentication input fields
+            const studentEmailInput = document.getElementById('studentEmail');
+            const studentPasswordInput = document.getElementById('studentPassword');
+            const studentLoginBtn = document.getElementById('studentLoginBtn');
+            const studentSignupBtn = document.getElementById('studentSignupBtn');
+            const studentGoogleLoginBtn = document.getElementById('studentGoogleLoginBtn');
+
+            const developerEmailInput = document.getElementById('developerEmail');
+            const developerPasswordInput = document.getElementById('developerPassword');
+            const developerCodeInput = document.getElementById('developerCode');
+            const developerLoginBtn = document.getElementById('developerLoginBtn');
+            const developerSignupBtn = document.getElementById('developerSignupBtn');
+
+            // Student Dashboard elements
+            const studentProfileSection = document.getElementById('studentProfileSection');
+            const profileStatusSpan = document.getElementById('profileStatus');
+            const studentNameInput = document.getElementById('studentName');
+            const studentClassInput = document.getElementById('studentClass');
+            const studentDOBInput = document.getElementById('studentDOB');
+            const studentProvinceInput = document.getElementById('studentProvince');
+            const saveProfileBtn = document.getElementById('saveProfileBtn');
+            const viewProfileBtn = document.getElementById('viewProfileBtn');
+
+            const testLibrarySection = document.getElementById('testLibrarySection');
+            const testListContainer = document.getElementById('testList');
+
+            const testTakingSection = document.getElementById('testTakingSection');
+            const currentTestTitleSpan = document.getElementById('currentTestTitle');
+            const testTimerSpan = document.getElementById('testTimer');
+            const testProgressBar = document.getElementById('testProgressBar');
+            const mcqContainer = document.getElementById('mcqContainer');
+            const prevMcqBtn = document.getElementById('prevMcqBtn');
+            const nextMcqBtn = document.getElementById('nextMcqBtn');
+            const submitTestBtn = document.getElementById('submitTestBtn');
+
+            const studentResultsSection = document.getElementById('studentResultsSection');
+            const studentScoreSpan = document.getElementById('studentScore');
+            const studentPastResultsList = document.getElementById('studentPastResultsList');
+            const backToStudentDashboardHomeBtn = document.getElementById('backToStudentDashboardHome');
+
+            // Developer Dashboard elements
+            const createTestBtn = document.getElementById('createTestBtn');
+            const viewStudentsBtn = document.getElementById('viewStudentsBtn');
+
+            const createTestSection = document.getElementById('createTestSection');
+            const testTitleInput = document.getElementById('testTitle');
+            const customTimeInput = document.getElementById('customTime');
+            const mcqInputTextarea = document.getElementById('mcqInput');
+            const generateTestBtn = document.getElementById('generateTestBtn');
+            const generatedTestIdSpan = document.getElementById('generatedTestId');
+            const backToDeveloperDashboardHomeBtn = document.getElementById('backToDeveloperDashboardHome');
+
+            const viewStudentsSection = document.getElementById('viewStudentsSection');
+            const studentsTableBody = document.getElementById('studentsTableBody');
+            const studentDetailsView = document.getElementById('studentDetailsView');
+            const currentStudentNameSpan = document.getElementById('currentStudentName');
+            const specificStudentResultsList = document.getElementById('specificStudentResultsList');
+            const backToStudentListBtn = document.getElementById('backToStudentListBtn');
+            const backToDeveloperDashboardHome2Btn = document.getElementById('backToDeveloperDashboardHome2');
+
+            // --- Global Test Variables ---
+            let currentTestQuestions = [];
+            let currentQuestionIndex = 0;
+            let testStartTime;
+            let testInterval;
+            let userAnswers = {}; // To store user's selected answers
+
+            // --- Firebase Auth State Listener ---
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    // User is signed in.
+                    logoutBtn.classList.remove('hidden');
+                    landingPage.classList.add('hidden');
+                    authSection.classList.add('hidden');
+
+                    // Check if user's profile document exists in Firestore
+                    const userDocRef = doc(db, 'users', user.uid);
+                    const userDocSnap = await getDoc(userDocRef);
+
+                    if (!userDocSnap.exists()) {
+                        // First time login/signup for this user, create their profile
+                        // Determine if they are signing up as a developer based on the currently active auth form
+                        let isDeveloperUser = false;
+                        if (!developerAuth.classList.contains('hidden') && developerCodeInput.value === 'MANDURI') {
+                            isDeveloperUser = true;
+                        }
+                        
+                        await setDoc(userDocRef, {
+                            email: user.email,
+                            name: user.displayName || '', // For Google sign-ins, displayName will be available
+                            isDeveloper: isDeveloperUser,
+                            createdAt: Date.now(),
+                            profileCompleted: false // Mark as incomplete initially
+                        });
+                        console.log("New user profile created in Firestore for:", user.email, "Is Developer:", isDeveloperUser);
+                    }
+
+                    // Now determine which dashboard to show based on isDeveloper status
+                    const userData = (await getDoc(userDocRef)).data(); // Fetch updated data
+                    if (userData && userData.isDeveloper) {
+                        developerDashboard.classList.remove('hidden');
+                        studentDashboard.classList.add('hidden');
+                        showToast("Logged in as Developer.");
+                    } else {
+                        studentDashboard.classList.remove('hidden');
+                        developerDashboard.classList.add('hidden');
+                        showToast("Logged in as Student.");
+
+                        // Update profile status display
+                        profileStatusSpan.textContent = userData && userData.profileCompleted ? 'Complete' : 'Incomplete';
+                        // Pre-fill profile fields if data exists
+                        studentNameInput.value = userData.name || '';
+                        studentClassInput.value = userData.class || '';
+                        studentDOBInput.value = userData.dob || '';
+                        studentProvinceInput.value = userData.province || '';
+
+                        loadTestLibrary(); // Load tests for students
+                        loadStudentPastResults(); // Load past results for students
+                    }
+                } else {
+                    // User is signed out.
+                    logoutBtn.classList.add('hidden');
+                    landingPage.classList.remove('hidden');
+                    authSection.classList.add('hidden'); // Ensure auth section is hidden on logout
+                    studentDashboard.classList.add('hidden');
+                    developerDashboard.classList.add('hidden');
+                    showToast("You have been logged out.");
+                }
+            });
+
+            // --- Initial View Setup ---
+            // This will be handled by onAuthStateChanged after initial load
+            // but we keep the initial hidden states for safety
+            landingPage.classList.remove('hidden');
+            authSection.classList.add('hidden');
+            studentDashboard.classList.add('hidden');
+            developerDashboard.classList.add('hidden');
+            logoutBtn.classList.add('hidden');
+
+            // --- Portal Button Click Handlers ---
+            developerPortalBtn.addEventListener('click', () => {
+                landingPage.classList.add('hidden');
+                authSection.classList.remove('hidden');
+                studentAuth.classList.add('hidden'); // Ensure student auth is hidden
+                developerAuth.classList.remove('hidden'); // Show developer auth
+                document.getElementById('authMessage').textContent = 'Developer Login / Signup';
+            });
+
+            studentPortalBtn.addEventListener('click', () => {
+                landingPage.classList.add('hidden');
+                authSection.classList.remove('hidden');
+                developerAuth.classList.add('hidden'); // Ensure developer auth is hidden
+                studentAuth.classList.remove('hidden'); // Show student auth
+                document.getElementById('authMessage').textContent = 'Student Login / Signup';
+            });
+
+            // --- Back Buttons from Auth Section ---
+            backFromStudentAuth.addEventListener('click', () => {
+                authSection.classList.add('hidden');
+                studentAuth.classList.add('hidden');
+                developerAuth.classList.add('hidden');
+                landingPage.classList.remove('hidden');
+            });
+
+            backFromDeveloperAuth.addEventListener('click', () => {
+                authSection.classList.add('hidden');
+                studentAuth.classList.add('hidden');
+                developerAuth.classList.add('hidden');
+                landingPage.classList.remove('hidden');
+            });
+
+            // --- Firebase Authentication Logic ---
+
+            // Student Email/Password Signup
+            studentSignupBtn.addEventListener('click', async () => {
+                const email = studentEmailInput.value;
+                const password = studentPasswordInput.value;
+                if (!email || !password) {
+                    showToast('Please enter both email and password.');
+                    return;
+                }
+                try {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    showToast('Student account created successfully! Please complete your profile.');
+                    // onAuthStateChanged will handle UI transition
+                } catch (error) {
+                    console.error("Error signing up student:", error.message);
+                    showToast(`Error signing up: ${error.message}`);
+                }
+            });
+
+            // Student Email/Password Login
+            studentLoginBtn.addEventListener('click', async () => {
+                const email = studentEmailInput.value;
+                const password = studentPasswordInput.value;
+                if (!email || !password) {
+                    showToast('Please enter both email and password.');
+                    return;
+                }
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showToast('Student logged in successfully!');
+                    // onAuthStateChanged will handle UI transition
+                } catch (error) {
+                    console.error("Error logging in student:", error.message);
+                    showToast(`Error logging in: ${error.message}`);
+                }
+            });
+
+            // Student Google Login
+            studentGoogleLoginBtn.addEventListener('click', async () => {
+                const provider = new GoogleAuthProvider();
+                try {
+                    await signInWithPopup(auth, provider);
+                    showToast('Logged in with Google successfully!');
+                    // onAuthStateChanged will handle UI transition and profile creation if new
+                } catch (error) {
+                    console.error("Error with Google login:", error.message);
+                    showToast(`Error with Google login: ${error.message}`);
+                }
+            });
+
+            // Developer Email/Password Signup
+            developerSignupBtn.addEventListener('click', async () => {
+                const email = developerEmailInput.value;
+                const password = developerPasswordInput.value;
+                const developerCode = developerCodeInput.value;
+
+                if (!email || !password || !developerCode) {
+                    showToast('Please fill in all fields (email, password, and developer code).');
+                    return;
+                }
+
+                if (developerCode !== 'MANDURI') { // The mandatory code for developers
+                    showToast('Invalid developer code.');
+                    return;
+                }
+
+                try {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    showToast('Developer account created successfully!');
+                    // onAuthStateChanged will handle UI transition and profile creation with isDeveloper: true
+                } catch (error) {
+                    console.error("Error signing up developer:", error.message);
+                    showToast(`Error signing up: ${error.message}`);
+                }
+            });
+
+            // Developer Email/Password Login
+            developerLoginBtn.addEventListener('click', async () => {
+                const email = developerEmailInput.value;
+                const password = developerPasswordInput.value;
+                if (!email || !password) {
+                    showToast('Please enter both email and password.');
+                    return;
+                }
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showToast('Developer logged in successfully!');
+                    // onAuthStateChanged will handle UI transition
+                } catch (error) {
+                    console.error("Error logging in developer:", error.message);
+                    showToast(`Error logging in: ${error.message}`);
+                }
+            });
+
+            // Logout functionality
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                    // onAuthStateChanged will handle UI reset and show toast
+                } catch (error) {
+                    console.error("Error signing out:", error.message);
+                    showToast(`Error signing out: ${error.message}`);
+                }
+            });
+
+            // --- Student Dashboard Logic ---
+
+            // Save Student Profile
+            saveProfileBtn.addEventListener('click', async () => {
+                const user = auth.currentUser;
+                if (!user) {
+                    showToast('Please log in to save your profile.');
+                    return;
+                }
+                const name = studentNameInput.value.trim();
+                const studentClass = studentClassInput.value.trim();
+                const dob = studentDOBInput.value.trim();
+                const province = studentProvinceInput.value.trim();
+
+                if (!name || !studentClass || !dob || !province) {
+                    showToast('Please fill in all profile fields.');
+                    return;
+                }
+
+                try {
+                    await setDoc(doc(db, 'users', user.uid), {
+                        name,
+                        class: studentClass,
+                        dob,
+                        province,
+                        profileCompleted: true
+                    }, { merge: true });
+                    profileStatusSpan.textContent = 'Complete';
+                    showToast('Profile saved successfully!');
+                } catch (error) {
+                    console.error("Error saving profile:", error.message);
+                    showToast(`Error saving profile: ${error.message}`);
+                }
+            });
+
+            // View Student Profile (Load existing data)
+            viewProfileBtn.addEventListener('click', async () => {
+                const user = auth.currentUser;
+                if (!user) {
+                    showToast('Please log in to view your profile.');
+                    return;
+                }
+                try {
+                    const userDocSnap = await getDoc(doc(db, 'users', user.uid));
+                    if (userDocSnap.exists()) {
+                        const data = userDocSnap.data();
+                        showToast(`Name: ${data.name || 'N/A'}\nClass: ${data.class || 'N/A'}\nDOB: ${data.dob || 'N/A'}\nProvince: ${data.province || 'N/A'}`, 5000);
+                    } else {
+                        showToast('Your profile is not yet complete. Please fill it out.');
+                    }
+                } catch (error) {
+                    console.error("Error fetching profile:", error.message);
+                    showToast(`Error fetching profile: ${error.message}`);
+                }
+            });
+
+            // Load Test Library
+            const loadTestLibrary = async () => {
+                testListContainer.innerHTML = '<div class="card"><p>Loading tests...</p><div class="spinner"></div></div>'; // Loading indicator
+                try {
+                    const q = query(collection(db, 'tests'));
+                    const querySnapshot = await getDocs(q);
+                    if (querySnapshot.empty) {
+                        testListContainer.innerHTML = '<p style="text-align: center; color: var(--gray);">No tests available yet.</p>';
+                        return;
+                    }
+                    testListContainer.innerHTML = ''; // Clear loading indicator
+                    querySnapshot.forEach((doc) => {
+                        const testData = doc.data();
+                        const testCard = document.createElement('div');
+                        testCard.className = 'card';
+                        testCard.innerHTML = `
+                            <h2>${testData.title}</h2>
+                            <p>Questions: ${testData.questions.length}</p>
+                            <p>Time per MCQ: ${testData.timePerMcq} min</p>
+                            <button class="btn btn-primary" data-testid="${doc.id}">
+                                <i class="fas fa-play-circle"></i> Start Test
+                            </button>
+                        `;
+                        testListContainer.appendChild(testCard);
+
+                        testCard.querySelector('.btn').addEventListener('click', async (event) => {
+                            const testId = event.currentTarget.dataset.testid;
+                            currentTestTitleSpan.textContent = testData.title;
+                            currentTestTitleSpan.dataset.testid = testId; // Store test ID on the element
+                            testLibrarySection.classList.add('hidden');
+                            studentProfileSection.classList.add('hidden');
+                            studentResultsSection.classList.add('hidden'); // Hide results if visible
+                            testTakingSection.classList.remove('hidden');
+                            await startTest(testId);
+                        });
+                    });
+                } catch (error) {
+                    console.error("Error loading test library:", error.message);
+                    testListContainer.innerHTML = `<p style="text-align: center; color: var(--danger);">Error loading tests: ${error.message}</p>`;
+                    showToast(`Error loading tests: ${error.message}`);
+                }
+            };
+
+            // Start Test Function
+            const startTest = async (testId) => {
+                mcqContainer.innerHTML = '<p class="question-text">Loading question...</p><div class="spinner"></div>'; // Loading spinner for question
+                try {
+                    const testDocRef = doc(db, 'tests', testId);
+                    const testDocSnap = await getDoc(testDocRef);
+
+                    if (!testDocSnap.exists()) {
+                        showToast('Test not found!');
+                        testTakingSection.classList.add('hidden');
+                        testLibrarySection.classList.remove('hidden');
+                        studentProfileSection.classList.remove('hidden'); // Show profile again
+                        return;
+                    }
+
+                    const testData = testDocSnap.data();
+                    currentTestQuestions = testData.questions;
+                    currentQuestionIndex = 0;
+                    userAnswers = {}; // Reset answers for new test
+
+                    displayMcq();
+                    startTestTimer(testData.timePerMcq * currentTestQuestions.length); // Total time for test
+                    submitTestBtn.classList.add('hidden'); // Hide submit until last question
+                    nextMcqBtn.classList.remove('hidden'); // Ensure next button is visible
+                    prevMcqBtn.classList.add('hidden'); // Hide prev button for first question
+                    testProgressBar.style.width = '0%'; // Reset progress bar
+                } catch (error) {
+                    console.error("Error starting test:", error.message);
+                    showToast(`Error starting test: ${error.message}`);
+                    testTakingSection.classList.add('hidden');
+                    testLibrarySection.classList.remove('hidden');
+                    studentProfileSection.classList.remove('hidden');
+                }
+            };
+
+            // Display MCQ
+            const displayMcq = () => {
+                mcqContainer.innerHTML = ''; // Clear previous MCQ
+
+                if (currentQuestionIndex >= 0 && currentQuestionIndex < currentTestQuestions.length) {
+                    const mcq = currentTestQuestions[currentQuestionIndex];
+                    const mcqDiv = document.createElement('div');
+                    mcqDiv.innerHTML = `
+                        <p class="question-text"><strong>Question ${currentQuestionIndex + 1}:</strong> ${mcq.statement}</p>
+                        <div class="options-container">
+                            <div class="option" data-option="A">
+                                <input type="radio" name="current_mcq_option" id="optionA" value="A">
+                                <label for="optionA">A: ${mcq.optionA}</label>
+                            </div>
+                            <div class="option" data-option="B">
+                                <input type="radio" name="current_mcq_option" id="optionB" value="B">
+                                <label for="optionB">B: ${mcq.optionB}</label>
+                            </div>
+                            <div class="option" data-option="C">
+                                <input type="radio" name="current_mcq_option" id="optionC" value="C">
+                                <label for="optionC">C: ${mcq.optionC}</label>
+                            </div>
+                            <div class="option" data-option="D">
+                                <input type="radio" name="current_mcq_option" id="optionD" value="D">
+                                <label for="optionD">D: ${mcq.optionD}</label>
+                            </div>
+                        </div>
+                    `;
+                    mcqContainer.appendChild(mcqDiv);
+
+                    // Add click listeners to options for selection
+                    mcqDiv.querySelectorAll('.option').forEach(optionDiv => {
+                        optionDiv.addEventListener('click', () => {
+                            // Remove 'selected' from all options
+                            mcqDiv.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                            // Add 'selected' to clicked option
+                            optionDiv.classList.add('selected');
+                            // Check the corresponding radio button
+                            optionDiv.querySelector('input[type="radio"]').checked = true;
+                            saveCurrentAnswer(); // Save answer immediately on selection
+                        });
+                    });
+
+                    // Re-render MathJax for new content
+                    if (typeof MathJax !== 'undefined') {
+                        MathJax.typesetPromise([mcqContainer]);
+                    }
+
+                    // Restore user's previous answer if available and select the option
+                    const savedAnswer = userAnswers[currentQuestionIndex];
+                    if (savedAnswer) {
+                        const radio = mcqContainer.querySelector(`input[value="${savedAnswer}"]`);
+                        if (radio) {
+                            radio.checked = true;
+                            radio.closest('.option').classList.add('selected');
+                        }
+                    }
+
+                    // Update progress bar
+                    const progress = ((currentQuestionIndex + 1) / currentTestQuestions.length) * 100;
+                    testProgressBar.style.width = `${progress}%`;
+
+                    // Show/hide navigation buttons
+                    prevMcqBtn.classList.toggle('hidden', currentQuestionIndex === 0);
+                    nextMcqBtn.classList.toggle('hidden', currentQuestionIndex === currentTestQuestions.length - 1);
+                    submitTestBtn.classList.toggle('hidden', currentQuestionIndex !== currentTestQuestions.length - 1);
+
+                } else {
+                    mcqContainer.innerHTML = '<p class="question-text" style="text-align: center;">End of test. Please submit.</p>';
+                    prevMcqBtn.classList.remove('hidden'); // Allow going back
+                    nextMcqBtn.classList.add('hidden');
+                    submitTestBtn.classList.remove('hidden');
+                }
+            };
+
+            // Save Current Answer
+            const saveCurrentAnswer = () => {
+                const selectedOption = document.querySelector('input[name="current_mcq_option"]:checked');
+                if (selectedOption) {
+                    userAnswers[currentQuestionIndex] = selectedOption.value;
+                } else {
+                    // If no option is selected, ensure it's not stored or clear previous if unselected
+                    delete userAnswers[currentQuestionIndex];
+                }
+            };
+
+            // Next MCQ
+            nextMcqBtn.addEventListener('click', () => {
+                saveCurrentAnswer(); // Save current answer before moving
+                if (currentQuestionIndex < currentTestQuestions.length - 1) {
+                    currentQuestionIndex++;
+                    displayMcq();
+                }
+            });
+
+            // Previous MCQ
+            prevMcqBtn.addEventListener('click', () => {
+                saveCurrentAnswer(); // Save current answer before moving
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    displayMcq();
+                }
+            });
+
+            // Start Test Timer
+            const startTestTimer = (totalMinutes) => {
+                const timerDisplay = testTimerSpan;
+                const totalSeconds = totalMinutes * 60;
+                testStartTime = Date.now();
+
+                if (testInterval) clearInterval(testInterval); // Clear any existing timer
+
+                testInterval = setInterval(() => {
+                    const elapsedTime = Math.floor((Date.now() - testStartTime) / 1000);
+                    const remainingSeconds = totalSeconds - elapsedTime;
+
+                    if (remainingSeconds <= 0) {
+                        clearInterval(testInterval);
+                        timerDisplay.textContent = "00:00";
+                        showToast("Time's up! Submitting your test.");
+                        submitTest();
+                        return;
+                    }
+
+                    const minutes = Math.floor(remainingSeconds / 60);
+                    const seconds = remainingSeconds % 60;
+                    timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }, 1000);
+            };
+
+            // Submit Test
+            submitTestBtn.addEventListener('click', submitTest);
+
+            async function submitTest() {
+                saveCurrentAnswer(); // Save the last question's answer
+                clearInterval(testInterval); // Stop the timer
+
+                let correctCount = 0;
+                currentTestQuestions.forEach((mcq, index) => {
+                    if (userAnswers[index] === mcq.correctOption) {
+                        correctCount++;
+                    }
+                });
+
+                const user = auth.currentUser;
+                if (!user) {
+                    showToast('Error: Not logged in to submit test.');
+                    return;
+                }
+
+                try {
+                    const testId = currentTestTitleSpan.dataset.testid; // Get actual test ID
+                    await addDoc(collection(db, 'results'), {
+                        studentUid: user.uid,
+                        testId: testId,
+                        score: correctCount,
+                        totalQuestions: currentTestQuestions.length,
+                        submittedAt: Date.now(),
+                        answers: userAnswers // Store all answers for review
+                    });
+                    showToast(`Test submitted! You scored ${correctCount} out of ${currentTestQuestions.length}.`);
+                    studentScoreSpan.textContent = `${correctCount}/${currentTestQuestions.length}`;
+                    testTakingSection.classList.add('hidden');
+                    studentResultsSection.classList.remove('hidden');
+                    loadStudentPastResults(); // Load updated results
+                } catch (error) {
+                    console.error("Error submitting test:", error.message);
+                    showToast(`Error submitting test: ${error.message}`);
+                }
+            }
+
+            // Load Student Past Results
+            const loadStudentPastResults = async () => {
+                studentPastResultsList.innerHTML = '<li style="text-align: center; color: var(--gray);">Loading results...</li>';
+                const user = auth.currentUser;
+                if (!user) {
+                    studentPastResultsList.innerHTML = '<li style="text-align: center; color: var(--gray);">Please log in to view past results.</li>';
+                    return;
+                }
+
+                try {
+                    const q = query(collection(db, 'results'), where('studentUid', '==', user.uid));
+                    const querySnapshot = await getDocs(q);
+                    if (querySnapshot.empty) {
+                        studentPastResultsList.innerHTML = '<li style="text-align: center; color: var(--gray);">No past results found.</li>';
+                        return;
+                    }
+                    studentPastResultsList.innerHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const result = doc.data();
+                        const date = new Date(result.submittedAt).toLocaleDateString();
+                        const listItem = document.createElement('li');
+                        listItem.style.marginBottom = '8px';
+                        listItem.style.padding = '10px';
+                        listItem.style.backgroundColor = 'var(--light-gray)';
+                        listItem.style.borderRadius = '8px';
+                        listItem.textContent = `Test ID: ${result.testId}, Score: ${result.score}/${result.totalQuestions}, Date: ${date}`;
+                        studentPastResultsList.appendChild(listItem);
+                    });
+                } catch (error) {
+                    console.error("Error loading past results:", error.message);
+                    studentPastResultsList.innerHTML = `<li style="text-align: center; color: var(--danger);">Error loading results: ${error.message}</li>`;
+                    showToast(`Error loading past results: ${error.message}`);
+                }
+            };
+
+            // Back to Student Dashboard Home
+            backToStudentDashboardHomeBtn.addEventListener('click', () => {
+                studentProfileSection.classList.remove('hidden');
+                testLibrarySection.classList.remove('hidden');
+                testTakingSection.classList.add('hidden');
+                studentResultsSection.classList.add('hidden');
+                loadTestLibrary(); // Reload test library in case new tests were added
+            });
+
+            // --- Developer Dashboard Logic ---
+
+            createTestBtn.addEventListener('click', () => {
+                createTestSection.classList.remove('hidden');
+                viewStudentsSection.classList.add('hidden');
+            });
+
+            viewStudentsBtn.addEventListener('click', async () => {
+                viewStudentsSection.classList.remove('hidden');
+                createTestSection.classList.add('hidden');
+                studentDetailsView.classList.add('hidden');
+                await loadAllStudentsAndResults();
+            });
+
+            generateTestBtn.addEventListener('click', async () => {
+                const user = auth.currentUser;
+                if (!user) {
+                    showToast('Please log in as a developer to create tests.');
+                    return;
+                }
+
+                const testTitle = testTitleInput.value.trim();
+                const customTime = parseFloat(customTimeInput.value); // Use parseFloat for decimal minutes
+                const mcqInput = mcqInputTextarea.value.trim();
+
+                if (!testTitle || !mcqInput) {
+                    showToast('Please provide a test title and MCQs.');
+                    return;
+                }
+                if (isNaN(customTime) || customTime <= 0) {
+                    showToast('Time per MCQ must be a positive number.');
+                    return;
+                }
+
+                const questions = [];
+                const mcqBlocks = mcqInput.split('STATEMENT:').filter(block => block.trim() !== '');
+
+                mcqBlocks.forEach((block, index) => {
+                    const lines = block.split('\n').map(line => line.trim()).filter(line => line !== '');
+                    if (lines.length < 6) { // STATEMENT, A, B, C, D, CORRECT
+                        console.warn(`Skipping malformed MCQ block ${index + 1}:`, block);
+                        return;
+                    }
+
+                    const statement = lines[0];
+                    const optionA = lines.find(line => line.startsWith('OPTION A:'))?.substring('OPTION A:'.length).trim() || '';
+                    const optionB = lines.find(line => line.startsWith('OPTION B:'))?.substring('OPTION B:'.length).trim() || '';
+                    const optionC = lines.find(line => line.startsWith('OPTION C:'))?.substring('OPTION C:'.length).trim() || '';
+                    const optionD = lines.find(line => line.startsWith('OPTION D:'))?.substring('OPTION D:'.length).trim() || '';
+                    const correctOption = lines.find(line => line.startsWith('CORRECT OPTION:'))?.substring('CORRECT OPTION:'.length).trim() || '';
+
+                    if (statement && optionA && optionB && optionC && optionD && correctOption) {
+                        questions.push({
+                            statement,
+                            optionA,
+                            optionB,
+                            optionC,
+                            optionD,
+                            correctOption: correctOption.toUpperCase() // Ensure A, B, C, D
+                        });
+                    } else {
+                        console.warn(`Skipping incomplete MCQ block ${index + 1}:`, block);
+                    }
+                });
+
+                if (questions.length === 0) {
+                    showToast('No valid MCQs parsed from your input. Please check the format.');
+                    return;
+                }
+
+                try {
+                    const docRef = await addDoc(collection(db, 'tests'), {
+                        title: testTitle,
+                        questions: questions,
+                        creatorUid: user.uid,
+                        timePerMcq: customTime,
+                        createdAt: Date.now()
+                    });
+                    generatedTestIdSpan.textContent = docRef.id;
+                    showToast('Test generated and saved successfully with ID: ' + docRef.id);
+                    testTitleInput.value = '';
+                    customTimeInput.value = '1'; // Reset to default
+                    mcqInputTextarea.value = '';
+                } catch (error) {
+                    console.error("Error generating test:", error.message);
+                    showToast(`Error generating test: ${error.message}`);
+                }
+            });
+
+            const loadAllStudentsAndResults = async () => {
+                studentsTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Loading students...<div class="spinner"></div></td></tr>';
+                try {
+                    const q = query(collection(db, 'users'), where('isDeveloper', '==', false)); // Only get students
+                    const querySnapshot = await getDocs(q);
+                    if (querySnapshot.empty) {
+                        studentsTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--gray);">No student profiles found.</td></tr>';
+                        return;
+                    }
+                    studentsTableBody.innerHTML = ''; // Clear loading message
+                    querySnapshot.forEach((doc) => {
+                        const studentData = doc.data();
+                        const row = studentsTableBody.insertRow();
+                        row.innerHTML = `
+                            <td>${studentData.name || 'N/A'}</td>
+                            <td>${studentData.class || 'N/A'}</td>
+                            <td>${studentData.email || 'N/A'}</td>
+                            <td>${studentData.province || 'N/A'}</td>
+                            <td>
+                                <button class="btn btn-outline" data-student-id="${doc.id}">
+                                    <i class="fas fa-eye"></i> View Results
+                                </button>
+                            </td>
+                        `;
+                    });
+                } catch (error) {
+                    console.error("Error loading students:", error.message);
+                    studentsTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--danger);">Error loading students: ${error.message}</td></tr>`;
+                    showToast(`Error loading students: ${error.message}`);
+                }
+            };
+
+            studentsTableBody.addEventListener('click', async (event) => {
+                if (event.target.closest('.btn') && event.target.closest('.btn').dataset.studentId) {
+                    const studentId = event.target.closest('.btn').dataset.studentId;
+                    const studentName = event.target.closest('tr').children[0].textContent;
+                    currentStudentNameSpan.textContent = studentName;
+                    studentDetailsView.classList.remove('hidden');
+
+                    specificStudentResultsList.innerHTML = '<li style="text-align: center; color: var(--gray);">Loading results...</li>';
+
+                    try {
+                        const q = query(collection(db, 'results'), where('studentUid', '==', studentId));
+                        const querySnapshot = await getDocs(q);
+                        if (querySnapshot.empty) {
+                            specificStudentResultsList.innerHTML = '<li style="text-align: center; color: var(--gray);">No results found for this student.</li>';
+                            return;
+                        }
+                        specificStudentResultsList.innerHTML = '';
+                        querySnapshot.forEach((doc) => {
+                            const result = doc.data();
+                            const date = new Date(result.submittedAt).toLocaleDateString();
+                            const listItem = document.createElement('li');
+                            listItem.style.marginBottom = '8px';
+                            listItem.style.padding = '10px';
+                            listItem.style.backgroundColor = 'var(--light-gray)';
+                            listItem.style.borderRadius = '8px';
+                            listItem.textContent = `Test ID: ${result.testId}, Score: ${result.score}/${result.totalQuestions}, Date: ${date}`;
+                            specificStudentResultsList.appendChild(listItem);
+                        });
+                    } catch (error) {
+                        console.error("Error loading specific student results:", error.message);
+                        specificStudentResultsList.innerHTML = `<li style="text-align: center; color: var(--danger);">Error loading results: ${error.message}</li>`;
+                        showToast(`Error loading results: ${error.message}`);
+                    }
+                }
+            });
+
+            backToStudentListBtn.addEventListener('click', () => {
+                studentDetailsView.classList.add('hidden');
+            });
+
+            backToDeveloperDashboardHomeBtn.addEventListener('click', () => {
+                createTestSection.classList.add('hidden');
+                viewStudentsSection.classList.add('hidden');
+            });
+            backToDeveloperDashboardHome2Btn.addEventListener('click', () => {
+                createTestSection.classList.add('hidden');
+                viewStudentsSection.classList.add('hidden');
+                studentDetailsView.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
