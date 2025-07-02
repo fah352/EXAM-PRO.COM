@@ -4,97 +4,132 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MDCAT Enzyme Quiz</title>
-  <!-- Google Fonts - Inter for better typography -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    // Configure Tailwind CSS to use 'Inter' font and custom colors if needed
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            inter: ['Inter', 'sans-serif'],
-          },
-          animation: {
-            // Custom pulse animation for the timer
-            pulse: 'pulse 1.5s infinite',
-            // Custom fade-in animation for the container
-            fadeIn: 'fadeIn 0.6s ease-out',
-          },
-          keyframes: {
-            pulse: {
-              '0%, 100%': { transform: 'scale(1)', opacity: '1' },
-              '50%': { transform: 'scale(1.03)', opacity: '0.9' },
-            },
-            fadeIn: {
-              'from': { opacity: '0', transform: 'translateY(20px)' },
-              'to': { opacity: '1', transform: 'translateY(0)' },
-            },
-          },
-        }
+  <style>
+    @media (max-width: 640px) {
+      .option-btn {
+        padding: 0.5rem 0.7rem;
+        font-size: 0.75rem;
+      }
+      .question-text {
+        font-size: 0.85rem;
+      }
+      .control-btn {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.75rem;
+      }
+      .result-table {
+        font-size: 0.8rem;
       }
     }
-  </script>
-  <style>
-    /* Custom styles for animations not directly supported by Tailwind utilities */
     body {
-      /* Apply Inter font family */
       font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .quiz-container {
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .option-btn {
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+    .pulse {
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.03); opacity: 0.9; }
+    }
+    .fadeIn {
+      animation: fadeIn 0.6s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .progress-transition {
+      transition: width 0.4s ease-in-out;
+    }
+    .selected-option {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+      color: white !important;
+      border-color: #1e40af !important;
+      box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+    }
+    .control-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .result-row:nth-child(even) {
+      background-color: #f8fafc;
     }
   </style>
 </head>
-<body class="font-inter text-xs bg-gradient-to-br from-blue-50 to-blue-200 p-4 text-gray-800 flex justify-center items-center min-h-screen m-0 box-border">
+<body>
   <!-- Quiz Section Container -->
-  <div class="container max-w-md w-full bg-white p-4 rounded-xl shadow-lg animate-fadeIn border border-gray-200" id="quiz-section">
-    <div class="section-title font-bold mb-4 text-sm text-blue-700 text-center border-b-2 border-blue-100 pb-2 drop-shadow-sm">MDCAT Enzyme Quiz</div>
-    <div id="timer-wrapper" class="text-sm my-2 text-gray-600 text-center font-semibold">Time Left: <span id="timer" class="text-red-600 font-bold animate-pulse">60s</span></div>
-    <div class="progress-bar-container bg-gray-300 rounded-lg overflow-hidden h-2.5 mb-4 shadow-inner">
-      <div class="progress-bar h-full w-0 bg-gradient-to-r from-blue-600 to-blue-400 rounded-lg transition-all duration-400 ease-in-out" id="progressBar"></div>
+  <div class="quiz-container max-w-md w-full bg-white p-4 rounded-xl fadeIn" id="quiz-section">
+    <div class="section-title font-bold mb-3 text-base text-blue-700 text-center border-b-2 border-blue-100 pb-2">MDCAT Enzyme Quiz</div>
+    
+    <div id="timer-wrapper" class="text-sm my-2 text-gray-600 text-center font-semibold">
+      Time Left: <span id="timer" class="text-red-600 font-bold pulse">60s</span>
     </div>
-    <div id="question-container"></div>
+    
+    <div class="progress-bar-container bg-gray-200 rounded-lg overflow-hidden h-2 mb-3">
+      <div class="progress-bar h-full w-0 bg-gradient-to-r from-blue-600 to-blue-400 rounded-lg progress-transition" id="progressBar"></div>
+    </div>
+    
+    <div id="question-container" class="mb-4"></div>
+    
     <div class="controls flex justify-between mt-4 gap-2">
-      <button class="back-btn flex-1 py-2 px-4 rounded-full text-white text-xs font-semibold transition-all duration-300 ease-in-out shadow-md shadow-gray-300 hover:bg-gray-600 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gray-400 focus:outline-none bg-gray-500" onclick="prevQuestion()">Back</button>
-      <button class="next-btn flex-1 py-2 px-4 rounded-full text-white text-xs font-semibold transition-all duration-300 ease-in-out shadow-md shadow-blue-300 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-400 focus:outline-none bg-blue-600" onclick="nextQuestion()">Next</button>
-      <button class="submit-btn flex-1 py-2 px-4 rounded-full text-white text-xs font-semibold transition-all duration-300 ease-in-out shadow-md shadow-green-300 hover:bg-green-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-green-400 focus:outline-none bg-green-600" onclick="submitQuiz()">Submit</button>
+      <button class="back-btn flex-1 py-2 px-3 rounded-lg text-white text-sm font-semibold shadow-md bg-gray-500 hover:bg-gray-600 focus:outline-none transition-all control-btn" onclick="prevQuestion()">Back</button>
+      <button class="next-btn flex-1 py-2 px-3 rounded-lg text-white text-sm font-semibold shadow-md bg-blue-600 hover:bg-blue-700 focus:outline-none transition-all control-btn" onclick="nextQuestion()">Next</button>
+      <button class="submit-btn flex-1 py-2 px-3 rounded-lg text-white text-sm font-semibold shadow-md bg-green-600 hover:bg-green-700 focus:outline-none transition-all control-btn" onclick="submitQuiz()">Submit</button>
     </div>
   </div>
 
   <!-- Result Section Container -->
-  <div class="container max-w-md w-full bg-white p-4 rounded-xl shadow-lg animate-fadeIn border border-gray-200" id="result-section" style="display:none;">
-    <div class="section-title font-bold mb-4 text-sm text-blue-700 text-center border-b-2 border-blue-100 pb-2 drop-shadow-sm">Result Summary</div>
-    <table class="w-full text-sm border-separate border-spacing-0 mt-4 rounded-lg overflow-hidden shadow-md">
-      <thead>
-        <tr>
-          <th class="p-2.5 border-b border-r border-gray-100 text-left bg-blue-100 font-bold text-blue-700 uppercase tracking-wide">Metric</th>
-          <th class="p-2.5 border-b border-r-0 border-gray-100 text-left bg-blue-100 font-bold text-blue-700 uppercase tracking-wide">Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="even:bg-gray-50">
-          <td class="p-2.5 border-b border-r border-gray-100">Attempted Questions</td><td class="p-2.5 border-b border-r-0 border-gray-100 font-bold text-gray-900" id="attempted"></td>
-        </tr>
-        <tr class="even:bg-gray-50">
-          <td class="p-2.5 border-b border-r border-gray-100">Questions Left</td><td class="p-2.5 border-b border-r-0 border-gray-100 font-bold text-gray-900" id="left"></td>
-        </tr>
-        <tr class="even:bg-gray-50">
-          <td class="p-2.5 border-b border-r border-gray-100">Correct Answers</td><td class="p-2.5 border-b border-r-0 border-gray-100 font-bold text-green-600" id="correct"></td>
-        </tr>
-        <tr class="even:bg-gray-50">
-          <td class="p-2.5 border-b border-r border-gray-100">Incorrect Answers</td><td class="p-2.5 border-b border-r-0 border-gray-100 font-bold text-red-600" id="incorrect"></td>
-        </tr>
-        <tr class="even:bg-gray-50 last:border-b-0">
-          <td class="p-2.5 border-r border-gray-100">Overall Percentage</td><td class="p-2.5 border-r-0 border-gray-100 font-bold text-blue-600" id="percentage"></td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="quiz-container max-w-md w-full bg-white p-4 rounded-xl fadeIn" id="result-section" style="display:none;">
+    <div class="section-title font-bold mb-4 text-base text-blue-700 text-center border-b-2 border-blue-100 pb-2">Result Summary</div>
+    
+    <div class="result-table bg-white rounded-lg overflow-hidden shadow-sm mb-4">
+      <div class="result-row flex border-b border-gray-200">
+        <div class="p-3 font-medium text-gray-700 flex-1 border-r border-gray-200">Attempted Questions</div>
+        <div id="attempted" class="p-3 font-bold text-gray-900 flex-1"></div>
+      </div>
+      <div class="result-row flex border-b border-gray-200">
+        <div class="p-3 font-medium text-gray-700 flex-1 border-r border-gray-200">Questions Left</div>
+        <div id="left" class="p-3 font-bold text-gray-900 flex-1"></div>
+      </div>
+      <div class="result-row flex border-b border-gray-200">
+        <div class="p-3 font-medium text-gray-700 flex-1 border-r border-gray-200">Correct Answers</div>
+        <div id="correct" class="p-3 font-bold text-green-600 flex-1"></div>
+      </div>
+      <div class="result-row flex border-b border-gray-200">
+        <div class="p-3 font-medium text-gray-700 flex-1 border-r border-gray-200">Incorrect Answers</div>
+        <div id="incorrect" class="p-3 font-bold text-red-600 flex-1"></div>
+      </div>
+      <div class="result-row flex">
+        <div class="p-3 font-medium text-gray-700 flex-1 border-r border-gray-200">Overall Percentage</div>
+        <div id="percentage" class="p-3 font-bold text-blue-600 flex-1"></div>
+      </div>
+    </div>
+    
     <div id="retake" class="text-center mt-4">
-      <button class="py-2 px-4 rounded-full text-white text-xs font-semibold transition-all duration-300 ease-in-out shadow-md shadow-orange-300 hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-orange-400 focus:outline-none bg-orange-500" onclick="resetQuiz()">Retake Test</button>
+      <button class="py-2 px-5 rounded-lg text-white text-sm font-semibold shadow-md bg-orange-500 hover:bg-orange-600 focus:outline-none transition-all" onclick="resetQuiz()">Retake Test</button>
     </div>
   </div>
 
   <script>
-    // Array of quiz questions - populated from the provided MCQs
     const questions = [
       {
         question: "Enzymes are biological catalysts that increase the rate of reactions in living organisms without:",
@@ -195,198 +230,13 @@
         question: "The local conditions inside the enzyme can be different from:",
         options: ["Substrate structure", "External pH and ions", "Enzyme sequence", "Temperature"],
         answer: "External pH and ions"
-      },
-      {
-        question: "Enzymes lower the activation energy by:",
-        options: ["Removing heat", "Stabilizing the transition state", "Forming glucose", "Increasing water content"],
-        answer: "Stabilizing the transition state"
-      },
-      {
-        question: "The energy required to initiate a reaction is called:",
-        options: ["Free energy", "Transition energy", "Activation energy", "Reaction heat"],
-        answer: "Activation energy"
-      },
-      {
-        question: "A higher activation energy results in:",
-        options: ["Rapid reaction", "No reaction", "Slower reaction", "Decreased energy"],
-        answer: "Slower reaction"
-      },
-      {
-        question: "Enzymes allow more molecules to:",
-        options: ["Denature", "Gain mass", "Overcome the energy barrier", "Become proteins"],
-        answer: "Overcome the energy barrier"
-      },
-      {
-        question: "A reaction with lower activation energy:",
-        options: ["Happens faster", "Is stopped", "Doesn't occur", "Forms DNA"],
-        answer: "Happens faster"
-      },
-      {
-        question: "The difference in energy between reactants and products is:",
-        options: ["Activation energy", "Transition state", "ΔG (change in free energy)", "Ionization energy"],
-        answer: "ΔG (change in free energy)"
-      },
-      {
-        question: "The enzyme catalase reduces activation energy of H₂O₂ from:",
-        options: ["86 kJ/mol to 50 kJ/mol", "100 kJ/mol to 1 kJ/mol", "86 kJ/mol to 1 kJ/mol", "1 kJ/mol to 0.5 kJ/mol"],
-        answer: "86 kJ/mol to 1 kJ/mol"
-      },
-      {
-        question: "In the energy graph, enzymes change:",
-        options: ["Product energy", "Shape of the graph", "Activation energy", "Substrate concentration"],
-        answer: "Activation energy"
-      },
-      {
-        question: "Exothermic reactions release:",
-        options: ["Oxygen", "Glucose", "Energy", "Heat only"],
-        answer: "Energy"
-      },
-      {
-        question: "The function of catalase is to:",
-        options: ["Raise temperature", "Break water", "Reduce H₂O₂", "Form DNA"],
-        answer: "Reduce H₂O₂"
-      },
-      {
-        question: "The energy barrier is also called:",
-        options: ["Activation energy", "Thermal power", "Substrate charge", "Enzyme heat"],
-        answer: "Activation energy"
-      },
-      {
-        question: "Without enzymes, reactions are:",
-        options: ["Faster", "Slower", "Impossible", "Endothermic"],
-        answer: "Slower"
-      },
-      {
-        question: "Activation energy must be overcome for:",
-        options: ["Metabolism", "Transition", "Reaction to occur", "Cell division"],
-        answer: "Reaction to occur"
-      },
-      {
-        question: "More molecules can overcome activation energy with:",
-        options: ["Light", "Heat", "Enzyme presence", "Water"],
-        answer: "Enzyme presence"
-      },
-      {
-        question: "The presence of enzymes converts reactants into:",
-        options: ["Fats", "Nucleotides", "Products", "Hormones"],
-        answer: "Products"
-      },
-      {
-        question: "Thermophilic enzymes function best at:",
-        options: ["0°C", "40°C", "90°C", "10°C"],
-        answer: "90°C"
-      },
-      {
-        question: "Arctic enzymes may function at:",
-        options: ["20°C", "37°C", "-10°C", "90°C"],
-        answer: "-10°C"
-      },
-      {
-        question: "The optimum temperature for mammalian enzymes is:",
-        options: ["25°C", "40°C", "100°C", "10°C"],
-        answer: "40°C"
-      },
-      {
-        question: "The Q₁₀ value refers to:",
-        options: ["Inhibition", "The rise in product level", "Rate increase per 10°C rise", "Energy balance"],
-        answer: "Rate increase per 10°C rise"
-      },
-      {
-        question: "Enzymes work slowly in a fridge because:",
-        options: ["They freeze", "No energy", "Diffusion is very slow", "They break"],
-        answer: "Diffusion is very slow"
-      },
-      {
-        question: "Most enzymes function best around a pH of:",
-        options: ["4", "7–8", "10", "2"],
-        answer: "7–8"
-      },
-      {
-        question: "Pepsin has an optimum pH of:",
-        options: ["7", "5", "1.5–1.6", "8"],
-        answer: "1.5–1.6"
-      },
-      {
-        question: "The pH affects enzyme activity by changing:",
-        options: ["Substrate temperature", "DNA sequence", "Amino acid ionization", "Color of enzyme"],
-        answer: "Amino acid ionization"
-      },
-      {
-        question: "A stomach enzyme functioning at low pH is:",
-        options: ["Amylase", "Catalase", "Pepsin", "Urease"],
-        answer: "Pepsin"
-      },
-      {
-        question: "Lipase from the pancreas works best at pH:",
-        options: ["2", "7.0", "8.0", "4.5"],
-        answer: "8.0"
-      },
-      {
-        question: "Catalase has an optimum pH of:",
-        options: ["3.0", "5.5", "7.0", "8.5"],
-        answer: "7.0"
-      },
-      {
-        question: "As enzyme concentration increases, the reaction rate:",
-        options: ["Stays constant", "Increases linearly", "Decreases rapidly", "Inhibits substrate"],
-        answer: "Increases linearly"
-      },
-      {
-        question: "Enzymes can work in ice but:",
-        options: ["Are denatured", "Work very slowly", "Speed up", "Lose shape"],
-        answer: "Work very slowly"
-      },
-      {
-        question: "Cofactors help enzymes by:",
-        options: ["Inhibiting reactions", "Making proteins", "Altering enzyme shape", "Breaking bonds"],
-        answer: "Altering enzyme shape"
-      },
-      {
-        question: "A coenzyme is:",
-        options: ["A protein enzyme", "A water molecule", "An organic cofactor", "An inhibitor"],
-        answer: "An organic cofactor"
-      },
-      {
-        question: "Metallic cofactors such as zinc are:",
-        options: ["Inhibitors", "Called prosthetic groups", "Coenzymes", "Catalysts"],
-        answer: "Called prosthetic groups"
-      },
-      {
-        question: "Coenzymes are often derived from:",
-        options: ["Sugars", "Hormones", "Vitamins", "Proteins"],
-        answer: "Vitamins"
-      },
-      {
-        question: "NAD⁺ and FAD are examples of:",
-        options: ["Enzymes", "Substrates", "Coenzymes", "Inhibitors"],
-        answer: "Coenzymes"
-      },
-      {
-        question: "A non-competitive inhibitor binds to the enzyme at a site other than the:",
-        options: ["Active site", "Substrate", "Product", "Cofactor"],
-        answer: "Active site"
-      },
-      {
-        question: "Competitive inhibition occurs when the inhibitor resembles the:",
-        options: ["Enzyme", "Product", "Substrate", "Cofactor"],
-        answer: "Substrate"
-      },
-      {
-        question: "Irreversible inhibitors form a strong bond with the enzyme, often at the:",
-        options: ["Product site", "Active site", "Regulator site", "Coenzyme site"],
-        answer: "Active site"
-      },
-      {
-        question: "Feedback inhibition is a regulatory mechanism where the end product of a metabolic pathway:",
-        options: ["Activates an enzyme", "Inhibits an enzyme", "Changes enzyme structure", "Increases substrate concentration"],
-        answer: "Inhibits an enzyme"
       }
     ];
 
     let currentQuestionIndex = 0;
-    let userAnswers = new Array(questions.length).fill(null); // To store user's selected option index
+    let userAnswers = new Array(questions.length).fill(null);
     let timerInterval;
-    const QUIZ_DURATION = 60; // seconds
+    const QUIZ_DURATION = 60;
     let timeLeft = QUIZ_DURATION;
 
     const questionContainer = document.getElementById('question-container');
@@ -395,9 +245,6 @@
     const quizSection = document.getElementById('quiz-section');
     const resultSection = document.getElementById('result-section');
 
-    /**
-     * Initializes the quiz by displaying the first question and starting the timer.
-     */
     function startQuiz() {
       currentQuestionIndex = 0;
       userAnswers.fill(null);
@@ -409,39 +256,111 @@
       resultSection.style.display = 'none';
     }
 
-    /**
-     * Renders the current question and its options to the DOM.
-     * Updates the progress bar.
-     */
     function renderQuestion() {
-      // Ensure the current question index is valid
-      if (currentQuestionIndex < 0 || currentQuestionIndex >= questions.length) {
-        console.error("Invalid currentQuestionIndex:", currentQuestionIndex);
-        return; // Exit if index is out of bounds
-      }
-
       const q = questions[currentQuestionIndex];
+      let optionsHTML = '';
+      
+      q.options.forEach((option, index) => {
+        const isSelected = userAnswers[currentQuestionIndex] === index;
+        optionsHTML += `
+          <button class="w-full py-2 px-3 my-1 text-left text-sm border border-blue-200 rounded-lg bg-blue-50 cursor-pointer option-btn
+            ${isSelected ? 'selected-option' : 'hover:bg-blue-100 hover:border-blue-400'}"
+            onclick="selectOption(${index})">
+            ${option}
+          </button>
+        `;
+      });
+      
       questionContainer.innerHTML = `
-        <div class="question font-semibold mb-3 text-sm text-blue-800 leading-tight">${currentQuestionIndex + 1}. ${q.question}</div>
-        <div class="options flex flex-col gap-2">
-          ${q.options.map((option, index) => `
-            <button class="flex items-center justify-start w-full py-2.5 px-3 text-sm border border-blue-200 rounded-lg bg-blue-50 cursor-pointer transition-all duration-200 ease-in-out text-gray-700 shadow-sm
-              ${userAnswers[currentQuestionIndex] === index ? 'selected-option' : ''}"
-              onclick="selectOption(${index})">
-              ${option}
-            </button>
-          `).join('')}
+        <div class="question font-semibold mb-3 text-sm text-blue-800 leading-tight question-text">
+          ${currentQuestionIndex + 1}. ${q.question}
+        </div>
+        <div class="options flex flex-col gap-1">
+          ${optionsHTML}
         </div>
       `;
-      updateOptionStyles();
+      
       updateProgressBar();
     }
 
-    /**
-     * Updates the styling of the options based on the user's selection.
-     */
-    function updateOptionStyles() {
-      const optionButtons = questionContainer.querySelectorAll('.options button');
-      optionButtons.forEach((button, index) => {
-        // Reset styles for all buttons first
-        butt
+    function selectOption(optionIndex) {
+      userAnswers[currentQuestionIndex] = optionIndex;
+      renderQuestion();
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderQuestion();
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        renderQuestion();
+      }
+    }
+
+    function updateProgressBar() {
+      const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+      progressBar.style.width = `${progress}%`;
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          submitQuiz();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      timerDisplay.textContent = `${timeLeft}s`;
+      if (timeLeft <= 10) {
+        timerDisplay.classList.add('pulse');
+      } else {
+        timerDisplay.classList.remove('pulse');
+      }
+    }
+
+    function submitQuiz() {
+      clearInterval(timerInterval);
+      let correctAnswers = 0;
+      let attemptedQuestions = 0;
+
+      questions.forEach((q, index) => {
+        if (userAnswers[index] !== null) {
+          attemptedQuestions++;
+          if (q.options[userAnswers[index]] === q.answer) {
+            correctAnswers++;
+          }
+        }
+      });
+
+      const incorrectAnswers = attemptedQuestions - correctAnswers;
+      const questionsLeft = questions.length - attemptedQuestions;
+      const percentage = ((correctAnswers / questions.length) * 100).toFixed(1);
+
+      document.getElementById('attempted').textContent = attemptedQuestions;
+      document.getElementById('left').textContent = questionsLeft;
+      document.getElementById('correct').textContent = correctAnswers;
+      document.getElementById('incorrect').textContent = incorrectAnswers;
+      document.getElementById('percentage').textContent = `${percentage}%`;
+
+      quizSection.style.display = 'none';
+      resultSection.style.display = 'block';
+    }
+
+    function resetQuiz() {
+      startQuiz();
+    }
+
+    window.onload = startQuiz;
+  </script>
+</body>
+          </html>
