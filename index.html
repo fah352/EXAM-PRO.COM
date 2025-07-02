@@ -151,7 +151,7 @@
       height: 100%;
       background: rgba(255, 255, 255, 0.8);
       display: flex;
-      justify-center: center;
+      justify-content: center;
       align-items: center;
       z-index: 1000;
       flex-direction: column;
@@ -185,7 +185,7 @@
   <div class="container max-w-md w-full bg-white p-4 rounded-xl shadow-lg animate-fadeIn border border-gray-200" id="quiz-section">
     <div class="section-title font-bold mb-4 text-sm text-blue-700 text-center border-b-2 border-blue-100 pb-2 drop-shadow-sm">MDCAT Enzyme Quiz</div>
     <div id="timer-wrapper" class="text-sm my-2 text-gray-600 text-center font-semibold">Time Left: <span id="timer" class="text-red-600 font-bold animate-pulse">60s</span></div>
-    <div class="progress-bar-container bg-gray-300 rounded-lg overflow-hidden h-2.5 mb-4 shadow-inner">
+    <div class="progress-bar-container">
       <div class="progress-bar h-full w-0 bg-gradient-to-r from-blue-600 to-blue-400 rounded-lg transition-all duration-400 ease-in-out" id="progressBar"></div>
     </div>
     <div id="question-container"></div>
@@ -232,8 +232,9 @@
         <button class="download-btn py-2 px-4 rounded-full text-white text-xs font-semibold transition-all duration-300 ease-in-out shadow-md shadow-blue-300 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-400 focus:outline-none bg-blue-600" onclick="downloadQuizSummary()">Download Test Summary (PDF)</button>
       </div>
     </div>
-    <div class="text-center mt-4">
+    <div class="flex justify-center gap-2 mt-4">
       <button class="generate-question-btn py-2 px-4 rounded-full text-white text-xs font-semibold transition-all duration-300 ease-in-out shadow-md shadow-purple-300 hover:bg-purple-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-purple-400 focus:outline-none bg-purple-600" onclick="generateNewQuestion()">✨ Generate New Question</button>
+      <button class="download-question-bank-btn py-2 px-4 rounded-full text-white text-xs font-semibold transition-all duration-300 ease-in-out shadow-md shadow-gray-500 hover:bg-gray-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gray-600 focus:outline-none bg-gray-600" onclick="generateQuizKeyPDF()">Download Question Bank with Key (PDF)</button>
     </div>
   </div>
 
@@ -436,14 +437,4 @@
         answer: "Products"
       },
       {
-        question: "Thermophilic enzymes function best at:",
-        options: ["0°C", "40°C", "90°C", "10°C"],
-        answer: "90°C"
-      },
-      {
-        question: "Arctic enzymes may function at:",
-        options: ["20°C", "37°C", "-10°C", "90°C"],
-        answer: "-10°C"
-      },
-      {
-        question: "The optimum temp
+        question: "T
