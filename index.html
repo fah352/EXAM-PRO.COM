@@ -94,7 +94,7 @@
   </div>
 
   <script>
-    // Array of quiz questions
+    // Array of quiz questions - populated from the provided MCQs
     const questions = [
       {
         question: "Enzymes are biological catalysts that increase the rate of reactions in living organisms without:",
@@ -414,6 +414,12 @@
      * Updates the progress bar.
      */
     function renderQuestion() {
+      // Ensure the current question index is valid
+      if (currentQuestionIndex < 0 || currentQuestionIndex >= questions.length) {
+        console.error("Invalid currentQuestionIndex:", currentQuestionIndex);
+        return; // Exit if index is out of bounds
+      }
+
       const q = questions[currentQuestionIndex];
       questionContainer.innerHTML = `
         <div class="question font-semibold mb-3 text-sm text-blue-800 leading-tight">${currentQuestionIndex + 1}. ${q.question}</div>
@@ -437,8 +443,5 @@
     function updateOptionStyles() {
       const optionButtons = questionContainer.querySelectorAll('.options button');
       optionButtons.forEach((button, index) => {
-        button.classList.remove('bg-blue-200', 'border-blue-400', 'font-semibold'); // Remove previous selection styles
-        button.classList.add('bg-blue-50', 'border-blue-200', 'hover:bg-blue-100', 'hover:border-blue-400', 'hover:-translate-y-px', 'hover:shadow-md');
-
-        if (userAnswers[currentQuestionIndex] === index) {
-          button.classList.add(
+        // Reset styles for all buttons first
+        butt
